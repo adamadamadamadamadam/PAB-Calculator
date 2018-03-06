@@ -2,4 +2,7 @@
     <string name="app_name">Calculator</string>
     <string name="btn_add">Add</string>
     <string name="btn_clear_text">Clear</string>
+    <string name="tv_mode_text">Primitive mode</string>
+    <string name="hint_operator">Operator</string>
+    <string name="hint_number">Number</string>
 </resources>
