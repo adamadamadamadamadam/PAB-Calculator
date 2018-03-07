@@ -5,58 +5,63 @@
     android:layout_width="match_parent"
     android:layout_margin="10dp"
     android:id="@+id/main_layout">
-    <RelativeLayout
-        android:id="@+id/calculator_box_container"
+    <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/calculator_operator"
-        >
-        <LinearLayout
-            android:id="@+id/calculator_display"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:orientation="horizontal"
-            android:background="@drawable/calculator_display_background">
-        </LinearLayout>
-    </RelativeLayout>
+        android:id="@+id/iv_Canvas"
+        android:layout_above="@id/calculator_operator"/>
     <RelativeLayout
         android:layout_marginBottom="10dp"
         android:id="@+id/calculator_operator"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true">
-            <EditText
-                android:id="@+id/et_operator"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignStart="@id/btn_add_operator"
-                android:layout_alignEnd="@id/btn_add_operator"
-                android:hint="@string/hint_operator"/>
-            <EditText
-                android:id="@+id/et_number"
-                android:inputType="number"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignStart="@id/btn_add_number"
-                android:layout_alignEnd="@id/btn_add_number"
-                android:hint="@string/hint_number"/>
-            <Button
-                android:id="@+id/btn_add_operator"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/et_operator"
-                android:layout_marginStart="94dp"
-                android:text="@string/btn_add" />
+        <EditText
+            android:id="@+id/et_operator"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@id/btn_add_operator"
+            android:layout_alignEnd="@id/btn_add_operator"
+            android:hint="@string/hint_operator"
+            android:layout_below="@id/btn_add_operator"
+            android:layout_alignLeft="@id/btn_add_operator"
+            android:layout_alignRight="@id/btn_add_operator"
+            android:background="@drawable/calculator_display_background"/>
+        <EditText
+            android:id="@+id/et_number"
+            android:inputType="number"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_below="@id/btn_add_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@id/btn_add_number"
+            android:layout_alignEnd="@id/btn_add_number"
+            android:hint="@string/hint_number"
+            android:layout_alignRight="@id/btn_add_number"
+            android:layout_alignLeft="@id/btn_add_number"
+            android:background="@drawable/calculator_display_background"/>
+        <Button
+            android:id="@+id/btn_add_operator"
+            android:layout_marginEnd="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="94dp"
+            android:text="@string/btn_add"
+            android:layout_marginLeft="94dp" />
 
-            <Button
-                android:id="@+id/btn_add_number"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
-                android:layout_below="@id/et_number"
-                android:layout_marginEnd="94dp"
-                android:text="@string/btn_add" />
+        <Button
+            android:id="@+id/btn_add_number"
+            android:layout_marginStart="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginEnd="94dp"
+            android:text="@string/btn_add"
+            android:layout_marginRight="94dp" />
     </RelativeLayout>
     <Switch
         android:id="@+id/toggle_mode"
