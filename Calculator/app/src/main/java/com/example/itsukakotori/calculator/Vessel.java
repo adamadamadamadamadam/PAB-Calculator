@@ -12,17 +12,19 @@ import android.widget.ImageView;
 
 public abstract class Vessel {
 
+    protected String value;
     protected PointF middlePoint;
     protected float x;
     protected float y;
     protected float a,b;
     protected String type;
+    protected MainActivity activity;
 
     public Vessel(){
 
     }
 
-    abstract void draw(Canvas canvas, ImageView mCanvas, Paint paint, MainActivity activity);
+    //abstract void draw(Canvas canvas, ImageView mCanvas, Paint paint, MainActivity activity);
 
     public boolean getField(float x, float y) {
         return x > (middlePoint.x - a) && x < (middlePoint.x + a) && y > (middlePoint.y - b) && y < (middlePoint.y + b);
@@ -36,5 +38,9 @@ public abstract class Vessel {
 
     public PointF getMiddlePoint(){
         return middlePoint;
+    }
+
+    public String getValue(){
+        return this.value;
     }
 }
