@@ -14,16 +14,16 @@ import android.widget.ImageView;
 
 public class Operator extends Vessel {
 
-    public Operator(String value, float x, float y, MainActivity activity){
-        super.value = value;
+    private String value;
+
+    public Operator(String value, float x, float y){
+        this.value = value;
         super.middlePoint = new PointF(x,y);
         super.type = "operator";
-        super.a = activity.mCanvas.getWidth() / 10;
-        super.b = activity.mCanvas.getHeight() / 10;
     }
 
-    //@Override
-    /*void draw(Canvas canvas, ImageView mCanvas, Paint paint, MainActivity activity) {
+    @Override
+    void draw(Canvas canvas, ImageView mCanvas, Paint paint, MainActivity activity) {
         Rect rect = new Rect();
         //isi method buat bikin rect
         super.a = activity.mCanvas.getWidth() / 20;
@@ -35,12 +35,17 @@ public class Operator extends Vessel {
         paint.setColor(Color.BLACK);
         canvas.drawText(this.value, middlePoint.x, middlePoint.y, paint);
         mCanvas.invalidate();
-    }*/
+    }
 
     @Override
     String getType() {
         return super.type;
     }
+
+    public String getValue(){
+        return this.value;
+    }
+
 }
 =======
 package com.example.itsukakotori.calculator;
