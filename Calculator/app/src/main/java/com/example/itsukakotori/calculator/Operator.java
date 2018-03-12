@@ -15,9 +15,15 @@ public class Operator extends Vessel {
 
     private String value;
 
+<<<<<<< HEAD
     public Operator(String value, float x, float y) {
         this.value = value;
         super.middlePoint = new PointF(x, y);
+=======
+    public Operator(String value, float x, float y){
+        this.value = value;
+        super.middlePoint = new PointF(x,y);
+>>>>>>> parent of 22ee551... update
         super.type = "operator";
     }
 
@@ -41,8 +47,16 @@ public class Operator extends Vessel {
         return super.type;
     }
 
+<<<<<<< HEAD
     public String getValue() {
         return this.value;
     }
 
 }
+=======
+    public String getValue(){
+        return this.value;
+    }
+
+}
+>>>>>>> parent of 22ee551... update

@@ -15,9 +15,15 @@ public class Number extends Vessel {
 
     private double value;
 
+<<<<<<< HEAD
     public Number(double value, float x, float y) {
         this.value = value;
         super.middlePoint = new PointF(x, y);
+=======
+    public Number(double value, float x, float y){
+        this.value = value;
+        super.middlePoint = new PointF(x,y);
+>>>>>>> parent of 22ee551... update
         super.type = "number";
     }
 
@@ -41,7 +47,14 @@ public class Number extends Vessel {
         return super.type;
     }
 
+<<<<<<< HEAD
     public double getValue() {
         return this.value;
     }
 }
+=======
+    public double getValue(){
+        return this.value;
+    }
+}
+>>>>>>> parent of 22ee551... update
