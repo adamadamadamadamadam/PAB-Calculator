@@ -13,15 +13,16 @@ import android.widget.ImageView;
 
 public class Number extends Vessel {
 
-    private double value;
 
-    public Number(double value, float x, float y){
-        this.value = value;
+    public Number(String value, float x, float y, MainActivity activity){
+        super.value = value;
         super.middlePoint = new PointF(x,y);
         super.type = "number";
+        super.a = activity.mCanvas.getWidth() / 10;
+        super.b = activity.mCanvas.getHeight() / 10;
     }
 
-    @Override
+    /*@Override
     void draw(Canvas canvas, ImageView mCanvas, Paint paint, MainActivity activity) {
         Rect rect = new Rect();
         //isi method buat bikin rect
@@ -34,14 +35,10 @@ public class Number extends Vessel {
         paint.setColor(Color.BLACK);
         canvas.drawText(String.valueOf(this.value), middlePoint.x, middlePoint.y, paint);
         mCanvas.invalidate();
-    }
+    }*/
 
     @Override
     String getType() {
         return super.type;
-    }
-
-    public double getValue(){
-        return this.value;
     }
 }
