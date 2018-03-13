@@ -35,9 +35,4 @@ public class Operator extends Vessel {
         canvas.drawText(this.value, middlePoint.x, middlePoint.y, paint);
         mCanvas.invalidate();
     }*/
-
-    @Override
-    String getType() {
-        return super.type;
-    }
 }

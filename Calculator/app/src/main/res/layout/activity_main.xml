@@ -18,8 +18,6 @@
         android:layout_alignParentBottom="true">
         <EditText
             android:id="@+id/et_operator"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="5dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignStart="@id/btn_add_operator"
@@ -32,8 +30,6 @@
         <EditText
             android:id="@+id/et_number"
             android:inputType="number"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="5dp"
             android:layout_below="@id/btn_add_number"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -45,25 +41,25 @@
             android:background="@drawable/calculator_display_background"/>
         <Button
             android:id="@+id/btn_add_operator"
-            android:layout_marginEnd="10dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="94dp"
-            android:text="@string/btn_add"
-            android:layout_marginLeft="94dp"
-            android:layout_marginRight="10dp" />
-
+            android:text="@string/btn_add" />
         <Button
             android:id="@+id/btn_add_number"
-            android:layout_marginStart="10dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
-            android:layout_marginEnd="94dp"
-            android:text="@string/btn_add"
-            android:layout_marginRight="94dp"
-            android:layout_marginLeft="10dp" />
+            android:text="@string/btn_add" />
+        <Button
+            android:id="@+id/btn_compute"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Compute"
+            android:layout_toRightOf="@id/btn_add_operator"
+            android:layout_toEndOf="@id/btn_add_operator"
+            android:layout_toLeftOf="@id/btn_add_number"
+            android:layout_toStartOf="@id/btn_add_number" />
     </RelativeLayout>
     <Switch
         android:id="@+id/toggle_mode"

@@ -36,9 +36,4 @@ public class Number extends Vessel {
         canvas.drawText(String.valueOf(this.value), middlePoint.x, middlePoint.y, paint);
         mCanvas.invalidate();
     }*/
-
-    @Override
-    String getType() {
-        return super.type;
-    }
 }

@@ -30,7 +30,9 @@ public abstract class Vessel {
         return x > (middlePoint.x - a) && x < (middlePoint.x + a) && y > (middlePoint.y - b) && y < (middlePoint.y + b);
     }
 
-    abstract String getType();
+    public String getType(){
+        return this.type;
+    }
 
     public void setMiddlePoint(float x, float y){
         middlePoint.set(x, y);

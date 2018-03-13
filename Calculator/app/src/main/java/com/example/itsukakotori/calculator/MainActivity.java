@@ -22,14 +22,19 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Random;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, View.OnTouchListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, View.OnTouchListener, Runnable {
 
     protected Presenter presenter;
     protected LinkedList<Vessel> listOfVessel;
     protected Vessel vesselClicked;
+    protected LinkedList<Vessel> listOfAssignedVessel;
+    protected LinkedList<String> listOfValues;
+    protected ArrayList<Vessel> touchedBoxes;
+    protected Vessel resultVessel;
 
     protected GestureDetector gestureDetector;
     protected Paint painter;
@@ -43,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected Bitmap mBitmap;
     //CalculatorImageView ivSelected;
 
-    private Button btnAddOperator, btnAddNumber;
+    private Button btnAddOperator, btnAddNumber, btnCompute;
     private EditText etOperator, etnumber;
 
     private boolean canvasInitiated;
@@ -62,6 +67,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         this.etOperator = findViewById(R.id.et_operator);
         this.calcOperators = findViewById(R.id.calculator_operator);
         this.mCanvas = findViewById(R.id.iv_Canvas);
+        this.btnCompute = findViewById(R.id.btn_compute);
+        this.touchedBoxes = new ArrayList<>();
+        this.listOfValues = new LinkedList<>();
 
 
         CustomGestureListener cgl = new CustomGestureListener(this);
@@ -69,6 +77,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         this.presenter = new Presenter(this);
         this.listOfVessel = new LinkedList<>();
+        this.listOfAssignedVessel = new LinkedList<>();
 
         this.btnAddNumber.setOnClickListener(this);
         this.btnAddOperator.setOnClickListener(this);
@@ -76,10 +85,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         rng = new Random();
 
+        this.mCanvas.post(this);
         //new Thread(this).start();
         //this.createBitmap();
         //this.counterX = 0;
         //kalo udh jd si UInya kirim ke gw dam biar gw tw harus nambah apa lagi di presenter ato harus nambah kelas apa lg
+    }
+
+    private void populateAssVesselList(){
+        for(int i = 0; i < 2; i++){
+            for(int j = 0; j < 4; j++){
+                Empty v = new Empty((float) ((mCanvas.getWidth() / 6) + ((mCanvas.getWidth() / 8) * 1.8 * j)), (float) ((mCanvas.getHeight() / 6) + ((mCanvas.getHeight() / 8) * 2 * i)), this);
+                draw(v);
+                listOfAssignedVessel.add(v);
+                if(i == 1 && j == 3){
+                    resultVessel = v;
+                }
+            }
+        }
     }
 
     private void initializeCanvas(){
@@ -89,13 +112,62 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         this.painter = new Paint();
         this.painter.setTextSize(this.painter.getTextSize() * 5);
-
+        System.out.println("Canvas Created");
         this.mCanvas.invalidate();
         canvasInitiated = true;
     }
 
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
+        switch (motionEvent.getAction() & MotionEvent.ACTION_MASK){
+            case MotionEvent.ACTION_DOWN:
+                Log.d("event", "onDown: acc");
+                //1.ambil koordinat yang di pencet
+                float touchedX = motionEvent.getX();
+                float touchedY = motionEvent.getY();
+                //2.check kotak/vessel mana yang di pencet method getField()
+                for (int i = 0; i < listOfVessel.size(); i++) {
+                    if (listOfVessel.get(i).getField(touchedX, touchedY)) {
+                        vesselClicked = listOfVessel.get(i);
+                        listOfVessel.remove(i);
+                        listOfVessel.add(vesselClicked);
+                        Log.d("Gesture", vesselClicked.getType());
+                        break;
+                    }
+                    vesselClicked = null;
+                }
+                break;
+            case MotionEvent.ACTION_UP:
+                Log.d("event", "lululu");
+                if(vesselClicked != null) {
+                    Log.d("event", "Masuk");
+                    int index = -1;
+                    PointF minPoint = new PointF();
+                    minPoint.set(Float.MAX_VALUE, Float.MAX_VALUE);
+                    for (int i = 0; i < touchedBoxes.size(); i++) {
+                        float x = Math.abs(vesselClicked.getMiddlePoint().x - touchedBoxes.get(i).getMiddlePoint().x);
+                        float y = Math.abs(vesselClicked.getMiddlePoint().y - touchedBoxes.get(i).getMiddlePoint().y);
+                        if(x < minPoint.x && y < minPoint.y && touchedBoxes.get(i).getType().equals("empty")){
+                            index = i;
+                            minPoint = new PointF(x, y);
+                        }
+                    }
+                    if(index != -1){
+                        vesselClicked.setMiddlePoint(touchedBoxes.get(index).getMiddlePoint().x, touchedBoxes.get(index).getMiddlePoint().y);
+                        touchedBoxes.clear();
+                        listOfValues.add(vesselClicked.getValue()); // PLACEHOLDER. BELUM BENER.
+                        for(int i = 0; i < listOfAssignedVessel.size(); i++){
+                            draw(listOfAssignedVessel.get(i));
+                        }
+                        for(int i = 0; i < listOfVessel.size(); i++){
+                            draw(listOfVessel.get(i));
+                        }
+                        mCanvas.invalidate();
+                        vesselClicked = null;
+                    }
+                }
+                break;
+        }
         return this.gestureDetector.onTouchEvent(motionEvent);
     }
 
@@ -170,15 +242,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if(box.getType().equals("number")){
             this.painter.setColor(this.getResources().getColor(R.color.number_color));
         }
-        else{
+        else if(box.getType().equals("operator")){
             this.painter.setColor(this.getResources().getColor(R.color.operator_color));
+        }
+        else{
+            this.painter.setColor(Color.RED);
         }
         canvas.drawRect(rect,painter);
         canvas.drawRect(rect, painter);
         painter.setColor(Color.BLACK);
-        float textLength = painter.measureText(box.getValue());
-        canvas.drawText(box.getValue(), box.getMiddlePoint().x - (textLength / 2), box.getMiddlePoint().y, painter);
+        if(!(box.getValue() == null)){
+            float textLength = painter.measureText(box.getValue());
+            canvas.drawText(box.getValue(), box.getMiddlePoint().x - (textLength / 2), box.getMiddlePoint().y, painter);
+        }
         mCanvas.invalidate();
+    }
+
+    @Override
+    public void run() {
+        this.initializeCanvas();
+        this.populateAssVesselList();
+
     }
 
     private class CustomGestureListener extends GestureDetector.SimpleOnGestureListener{
@@ -191,19 +275,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         @Override
         public boolean onDown(MotionEvent e) {
-            Log.d("event", "onDown: acc");
-            //1.ambil koordinat yang di pencet
-            float touchedX = e.getX();
-            float touchedY = e.getY();
-            //2.check kotak/vessel mana yang di pencet method getField()
-            for(int i = 0; i < listOfVessel.size(); i++){
-                if(listOfVessel.get(i).getField(touchedX, touchedY)){
-                    vesselClicked = listOfVessel.get(i);
-                    Log.d("Gesture", vesselClicked.getType());
-                    break;
-                }
-                vesselClicked = null;
-            }
+
             // kalo gk true gk bakal terjadi apa2
             //kalo true ambil semua infonya masukin ke vesselClicked
             return true;
@@ -211,18 +283,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            Log.d("event", "onScroll: acc");
             //gambar ulang si vessel yang di pencet
             if(vesselClicked != null) {
+                touchedBoxes.clear();
                 canvas.drawColor(getResources().getColor(R.color.default_background_color));
                 //listOfVessel.add(vesselClicked);
+                for(int i = 0; i < listOfAssignedVessel.size(); i++){
+                    draw(listOfAssignedVessel.get(i));
+                }
                 vesselClicked.setMiddlePoint(e2.getX(), e2.getY());
+                for(int i = 0; i < listOfAssignedVessel.size(); i++){
+                    if((vesselClicked.getTop() < listOfAssignedVessel.get(i).getBottom() || vesselClicked.getBottom() < listOfAssignedVessel.get(i).getTop())
+                            && vesselClicked.getLeft() > listOfAssignedVessel.get(i).getLeft()
+                            && vesselClicked.getRight() < listOfAssignedVessel.get(i).getRight()){
+                        touchedBoxes.add(listOfAssignedVessel.get(i));
+                        Log.d("event", "added box " + i);
+                    }
+                }
+                Log.d("event", "touched box list size = " + touchedBoxes.size());
                 for(int i = 0; i < listOfVessel.size(); i++){
                     draw(listOfVessel.get(i));
                 }
                 mCanvas.invalidate();
             }
-            Log.d("event", "list size = " + listOfVessel.size());
             return false;
         }
 
