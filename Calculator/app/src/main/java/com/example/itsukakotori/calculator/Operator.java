@@ -17,8 +17,8 @@ public class Operator extends Vessel {
         super.value = value;
         super.middlePoint = new PointF(x,y);
         super.type = "operator";
-        super.a = activity.mCanvas.getWidth() / 10;
-        super.b = activity.mCanvas.getHeight() / 10;
+        super.a = activity.mCanvas.getWidth() / 20;
+        super.b = activity.mCanvas.getHeight() / 20;
     }
 
     //@Override

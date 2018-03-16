@@ -19,6 +19,7 @@ public abstract class Vessel {
     protected float a,b;
     protected String type;
     protected MainActivity activity;
+    protected boolean willBeDeleted;
 
     public Vessel(){
 
@@ -67,5 +68,12 @@ public abstract class Vessel {
 
     public float getBottom(){
         return this.middlePoint.y + this.b;
+    }
+
+    public void setDeletion(boolean bool){
+        this.willBeDeleted = bool;
+    }
+    public boolean getDeleteStatus(){
+        return this.willBeDeleted;
     }
 }

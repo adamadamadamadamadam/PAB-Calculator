@@ -14,12 +14,15 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -39,6 +42,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected GestureDetector gestureDetector;
     protected Paint painter;
 
+    protected RelativeLayout mainLayout;
     protected RelativeLayout boxContainer;
     protected RelativeLayout mainContainer;
     protected RelativeLayout calcOperators;
@@ -49,7 +53,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //CalculatorImageView ivSelected;
 
     private Button btnAddOperator, btnAddNumber, btnCompute;
-    private EditText etOperator, etnumber;
+    private EditText etnumber;
+    private Spinner spinnerOperator;
+    private ImageView ivDelete;
+    Animation shakeAnim;
 
     private boolean canvasInitiated;
     float counterX;
@@ -64,12 +71,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         this.btnAddNumber = findViewById(R.id.btn_add_number);
         this.btnAddOperator = findViewById(R.id.btn_add_operator);
         this.etnumber = findViewById(R.id.et_number);
-        this.etOperator = findViewById(R.id.et_operator);
+        this.spinnerOperator = findViewById(R.id.spinner_operator);
         this.calcOperators = findViewById(R.id.calculator_operator);
         this.mCanvas = findViewById(R.id.iv_Canvas);
         this.btnCompute = findViewById(R.id.btn_compute);
+        this.mainLayout = findViewById(R.id.main_layout);
+        this.ivDelete = findViewById(R.id.iv_delete);
         this.touchedBoxes = new ArrayList<>();
         this.listOfValues = new LinkedList<>();
+        this.shakeAnim = AnimationUtils.loadAnimation(this, R.anim.shake);
 
 
         CustomGestureListener cgl = new CustomGestureListener(this);
@@ -96,11 +106,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         for(int i = 0; i < 2; i++){
             for(int j = 0; j < 4; j++){
                 Empty v = new Empty((float) ((mCanvas.getWidth() / 6) + ((mCanvas.getWidth() / 8) * 1.8 * j)), (float) ((mCanvas.getHeight() / 6) + ((mCanvas.getHeight() / 8) * 2 * i)), this);
-                draw(v);
                 listOfAssignedVessel.add(v);
                 if(i == 1 && j == 3){
                     resultVessel = v;
                 }
+                draw(v);
             }
         }
     }
@@ -113,6 +123,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         this.painter = new Paint();
         this.painter.setTextSize(this.painter.getTextSize() * 5);
         System.out.println("Canvas Created");
+        this.mCanvas.setOnTouchListener(this);
         this.mCanvas.invalidate();
         canvasInitiated = true;
     }
@@ -130,7 +141,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     if (listOfVessel.get(i).getField(touchedX, touchedY)) {
                         vesselClicked = listOfVessel.get(i);
                         listOfVessel.remove(i);
-                        listOfVessel.add(vesselClicked);
+                        //listOfVessel.add(vesselClicked);
                         Log.d("Gesture", vesselClicked.getType());
                         break;
                     }
@@ -138,33 +149,38 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 break;
             case MotionEvent.ACTION_UP:
-                Log.d("event", "lululu");
+                Log.d("delete coords", ivDelete.getX() + " " +  ivDelete.getY());
                 if(vesselClicked != null) {
-                    Log.d("event", "Masuk");
+                    Log.d("delete coords", vesselClicked.getBottom() + " " + vesselClicked.getRight());
                     int index = -1;
                     PointF minPoint = new PointF();
                     minPoint.set(Float.MAX_VALUE, Float.MAX_VALUE);
                     for (int i = 0; i < touchedBoxes.size(); i++) {
                         float x = Math.abs(vesselClicked.getMiddlePoint().x - touchedBoxes.get(i).getMiddlePoint().x);
                         float y = Math.abs(vesselClicked.getMiddlePoint().y - touchedBoxes.get(i).getMiddlePoint().y);
-                        if(x < minPoint.x && y < minPoint.y && touchedBoxes.get(i).getType().equals("empty")){
+                        if(x < minPoint.x && y < minPoint.y && touchedBoxes.get(i).getType().equals("empty") && !resultVessel.equals(touchedBoxes.get(i))){
                             index = i;
                             minPoint = new PointF(x, y);
                         }
                     }
+                    canvas.drawColor(getResources().getColor(R.color.default_background_color));
                     if(index != -1){
                         vesselClicked.setMiddlePoint(touchedBoxes.get(index).getMiddlePoint().x, touchedBoxes.get(index).getMiddlePoint().y);
                         touchedBoxes.clear();
                         listOfValues.add(vesselClicked.getValue()); // PLACEHOLDER. BELUM BENER.
-                        for(int i = 0; i < listOfAssignedVessel.size(); i++){
-                            draw(listOfAssignedVessel.get(i));
-                        }
-                        for(int i = 0; i < listOfVessel.size(); i++){
-                            draw(listOfVessel.get(i));
-                        }
-                        mCanvas.invalidate();
-                        vesselClicked = null;
                     }
+                    for(int i = 0; i < listOfAssignedVessel.size(); i++){
+                        draw(listOfAssignedVessel.get(i));
+                    }
+                    if(!vesselClicked.getDeleteStatus()){
+                        Log.d("event", "not deleted");
+                        listOfVessel.add(vesselClicked);
+                    }
+                    vesselClicked = null;
+                    for(int i = 0; i < listOfVessel.size(); i++){
+                        draw(listOfVessel.get(i));
+                    }
+                    mCanvas.invalidate();
                 }
                 break;
         }
@@ -202,12 +218,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
         else if(view.getId()==this.btnAddOperator.getId()){
-            if(etOperator.getText().toString().equals("")){
+            if(spinnerOperator.getSelectedItem().toString().equals("")){
                 Toast toast = Toast.makeText(getApplicationContext(), "Operator belum dimasukan", Toast.LENGTH_SHORT);
                 toast.show();
             }
             else {
-                Vessel opVessel = new Operator(this.etOperator.getText().toString(), rng.nextInt(mCanvas.getWidth() - a * 2) + a
+                Vessel opVessel = new Operator(this.spinnerOperator.getSelectedItem().toString(), rng.nextInt(mCanvas.getWidth() - a * 2) + a
                         , rng.nextInt(2 + mCanvas.getHeight() / 2) + mCanvas.getHeight() / 2, this);
                 this.listOfVessel.add(opVessel);
                 //tempVessel.draw(canvas, mCanvas, painter, this);
@@ -216,7 +232,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-        this.mCanvas.setOnTouchListener(this);
         mCanvas.invalidate();
     }
 
@@ -239,22 +254,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         rect.set((int) Math.floor(box.getMiddlePoint().x - box.a), (int) Math.floor(box.getMiddlePoint().y - box.b),
                 (int) Math.floor(box.getMiddlePoint().x + box.a), (int) Math.floor(box.getMiddlePoint().y + box.b));
-        if(box.getType().equals("number")){
+        if (box.getType().equals("number")) {
             this.painter.setColor(this.getResources().getColor(R.color.number_color));
-        }
-        else if(box.getType().equals("operator")){
+        } else if (box.getType().equals("operator")) {
             this.painter.setColor(this.getResources().getColor(R.color.operator_color));
-        }
-        else{
-            this.painter.setColor(Color.RED);
+        } else {
+            this.painter.setColor(Color.BLACK);
+            this.painter.setStyle(Paint.Style.STROKE);
         }
         canvas.drawRect(rect,painter);
         canvas.drawRect(rect, painter);
         painter.setColor(Color.BLACK);
+        painter.setTextAlign(Paint.Align.CENTER);
         if(!(box.getValue() == null)){
-            float textLength = painter.measureText(box.getValue());
-            canvas.drawText(box.getValue(), box.getMiddlePoint().x - (textLength / 2), box.getMiddlePoint().y, painter);
+            //float textLength = painter.measureText(box.getValue());
+            canvas.drawText(box.getValue(), box.getMiddlePoint().x, box.getMiddlePoint().y, painter);
         }
+        if(box.equals(resultVessel)){
+            canvas.drawText("Result", box.getMiddlePoint().x, box.getMiddlePoint().y, painter);
+        }
+        painter.setStyle(Paint.Style.FILL);
         mCanvas.invalidate();
     }
 
@@ -304,6 +323,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 for(int i = 0; i < listOfVessel.size(); i++){
                     draw(listOfVessel.get(i));
                 }
+                if(vesselClicked.getBottom() > ivDelete.getY() && vesselClicked.getRight() > ivDelete.getX()){
+                    vesselClicked.setDeletion(true);
+                    ivDelete.startAnimation(shakeAnim);
+                }
+                else{
+                    vesselClicked.setDeletion(false);
+                }
+                draw(vesselClicked);
                 mCanvas.invalidate();
             }
             return false;

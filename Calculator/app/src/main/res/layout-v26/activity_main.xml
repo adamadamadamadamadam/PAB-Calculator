@@ -10,23 +10,28 @@
         android:layout_height="match_parent"
         android:id="@+id/iv_Canvas"
         android:layout_above="@id/calculator_operator"/>
+    <ImageView
+        android:id="@+id/iv_delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/calculator_operator"
+        android:layout_alignParentEnd="true"
+        android:src="@android:drawable/ic_menu_delete"/>
     <RelativeLayout
         android:layout_marginBottom="10dp"
         android:id="@+id/calculator_operator"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true">
-        <EditText
-            android:id="@+id/et_operator"
+
+        <Spinner
+            android:id="@+id/spinner_operator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignStart="@id/btn_add_operator"
             android:layout_alignEnd="@id/btn_add_operator"
-            android:hint="@string/hint_operator"
             android:layout_below="@id/btn_add_operator"
-            android:layout_alignLeft="@id/btn_add_operator"
-            android:layout_alignRight="@id/btn_add_operator"
-            android:background="@drawable/calculator_display_background"/>
+            android:entries="@array/operator_array"/>
         <EditText
             android:id="@+id/et_number"
             android:inputType="number"
@@ -36,8 +41,6 @@
             android:layout_alignStart="@id/btn_add_number"
             android:layout_alignEnd="@id/btn_add_number"
             android:hint="@string/hint_number"
-            android:layout_alignRight="@id/btn_add_number"
-            android:layout_alignLeft="@id/btn_add_number"
             android:background="@drawable/calculator_display_background"/>
         <Button
             android:id="@+id/btn_add_operator"
