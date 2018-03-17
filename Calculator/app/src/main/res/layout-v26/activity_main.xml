@@ -8,8 +8,7 @@
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/iv_Canvas"
-        android:layout_above="@id/calculator_operator"/>
+        android:id="@+id/iv_Canvas"/>
     <ImageView
         android:id="@+id/iv_delete"
         android:layout_width="wrap_content"
@@ -62,19 +61,20 @@
             android:layout_toRightOf="@id/btn_add_operator"
             android:layout_toEndOf="@id/btn_add_operator"
             android:layout_toLeftOf="@id/btn_add_number"
-            android:layout_toStartOf="@id/btn_add_number" />
+            android:layout_toStartOf="@id/btn_add_number"/>
+        <Switch
+            android:id="@+id/toggle_mode"
+            android:layout_alignLeft="@id/btn_compute"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/btn_compute"/>
+        <TextView
+            android:id="@+id/tv_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/toggle_mode"
+            android:layout_toRightOf="@id/toggle_mode"
+            android:layout_below="@id/btn_compute"
+            android:text="@string/tv_mode_text"/>
     </RelativeLayout>
-    <Switch
-        android:id="@+id/toggle_mode"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/calculator_operator"/>
-    <TextView
-        android:id="@+id/tv_switch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toEndOf="@id/toggle_mode"
-        android:layout_toRightOf="@id/toggle_mode"
-        android:layout_below="@id/calculator_operator"
-        android:text="@string/tv_mode_text"/>
 </RelativeLayout>

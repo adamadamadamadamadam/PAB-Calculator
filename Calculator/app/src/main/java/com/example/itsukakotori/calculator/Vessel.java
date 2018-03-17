@@ -76,4 +76,7 @@ public abstract class Vessel {
     public boolean getDeleteStatus(){
         return this.willBeDeleted;
     }
+    public void setValue(String value){
+        this.value = value;
+    }
 }

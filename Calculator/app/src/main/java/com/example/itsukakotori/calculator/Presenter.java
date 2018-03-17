@@ -16,6 +16,7 @@ public class Presenter {
     private List<Double> numbers;
     protected List<String> operator;
     protected MathOperation mo;
+    protected String mode;
 
     public Presenter(MainActivity ma){
         this.mainActivity = ma;
@@ -23,6 +24,12 @@ public class Presenter {
         this.operator = new LinkedList<>();
         this.numbers = new LinkedList<>();
         this.mo = new MathOperation();
+        this.mode = "native";
+    }
+
+    public void clearList(){
+        this.numbers.clear();
+        this.operator.clear();
     }
 
     public void addMath(String x){
@@ -35,27 +42,41 @@ public class Presenter {
 
     protected void spreadNumberOperator(){
         for(int i = 0;i<mathList.size();i++){
-            if(mathList.get(i)=="+"||mathList.get(i)=="-"||mathList.get(i)=="*"||mathList.get(i)=="/"){
-                operator.add(mathList.get(i).toString());
+            if(mathList.get(i) != null) {
+                if (mathList.get(i).equals("+") || mathList.get(i).equals("-") || mathList.get(i).equals("*") || mathList.get(i).equals("/")) {
+                    operator.add(mathList.get(i).toString());
+                } else {
+                    numbers.add(Double.parseDouble(mathList.get(i)));
+                }
             }
-            else{
-                numbers.add(Double.parseDouble(mathList.get(i)));
-            }
+        }
+    }
+
+    public void countAlternate(){
+        if(this.mode.equals("native")){
+            this.spreadNumberOperator();
+            this.count();
+        }
+        else{
+            this.stackList();
+            this.spreadNumberOperator();
+            this.count();
         }
     }
 
     public void count(){
         while(!operator.isEmpty()){
             String x = operator.remove(0);
-            if(x=="+"){
+            if(x.equals("+")){
                 double a = numbers.get(0);
                 double b = numbers.get(1);
+                Log.d("mathlist", a + " " + b);
                 double y = mo.add(a,b);
                 numbers.remove(1);
                 numbers.remove(0);
                 numbers.add(0,y);
             }
-            else if(x=="-"){
+            else if(x.equals("-")){
                 double a = numbers.get(0);
                 double b = numbers.get(1);
                 double y = mo.substract(a,b);
@@ -63,7 +84,7 @@ public class Presenter {
                 numbers.remove(0);
                 numbers.add(0,y);
             }
-            else if(x=="*"){
+            else if(x.equals("*")){
                 double a = numbers.get(0);
                 double b = numbers.get(1);
                 double y = mo.multiply(a,b);
@@ -71,7 +92,7 @@ public class Presenter {
                 numbers.remove(0);
                 numbers.add(0,y);
             }
-            else if(x=="/"){
+            else if(x.equals("/")){
                 double a = numbers.get(0);
                 double b = numbers.get(1);
                 double y = mo.divide(a,b);
@@ -88,6 +109,18 @@ public class Presenter {
     public void stackList(){
         //method stack buat stack mathList, biar kalo nnt di count() sama di spreadNumber() udh terurut countingnya
         //maksudnya biar kalo ada 5+6/3*4-2 jd 6/3 dlu trus * 4 ditambah 5 baru dikurang 2
+        ///*+-
+        //63452
+
+    }
+
+    public void toggleMode(){
+        if(this.mode.equals("native")){
+            this.mode = "presendence";
+        }
+        else{
+            this.mode = "native";
+        }
     }
 
     public double getResult(){
