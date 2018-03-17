@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Random;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, View.OnTouchListener, Runnable {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, View.OnTouchListener, Runnable, View.OnLongClickListener {
 
     protected Presenter presenter;
     protected LinkedList<Vessel> listOfVessel;
@@ -59,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private EditText etnumber;
     private Spinner spinnerOperator;
     private ImageView ivDelete;
+
     Animation shakeAnim;
 
     private boolean canvasInitiated;
@@ -103,6 +104,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         this.btnAddNumber.setOnClickListener(this);
         this.btnAddOperator.setOnClickListener(this);
         this.btnCompute.setOnClickListener(this);
+        this.btnAddNumber.setOnLongClickListener(this);
+        this.btnAddOperator.setOnLongClickListener(this);
         this.history = new History();
         this.canvasInitiated = false;
 
@@ -154,6 +157,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    private int getNumberHead(){
+        int head = -1;
+        for(int i = 0; i < emptyVessel.length; i+=2){
+            if(!emptyVessel[i].isEmpty()){
+                head = i;
+            }
+        }
+        return head;
+    }
+
+    private int getHead(int type){
+        int head = -1;
+        int start = 0;
+        if(type == 2){
+            start = 1;
+        }
+        for(int i = start; i < emptyVessel.length - 1; i+= 2){
+            if(!emptyVessel[i].isEmpty()){
+                head = i;
+            }
+        }
+        return head;
+    }
+
     private void initializeCanvas(){
         this.mBitmap= Bitmap.createBitmap(this.mCanvas.getWidth(),this.mCanvas.getHeight(),Bitmap.Config.ARGB_8888);
         this.mCanvas.setImageBitmap(mBitmap);
@@ -184,7 +211,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 emptyVessel[j].setInVessel(null);
                                 emptyVessel[j].setEmpty(true);
                                 Log.d("vessel", "set null");
-                                listOfValues.remove(emptyVessel[i].getValue()); //PLACEHOLDER BUAT COBA2
                                 break;
                             }
                         }
@@ -225,7 +251,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 Log.d("vessel", "set not null");
                                 emptyVessel[i].setInVessel(vesselClicked);
                                 emptyVessel[i].setEmpty(false);
-                                listOfValues.add(emptyVessel[i].getValue()); //PLACEHOLDER BUAT COBA2
                                 break;
                             }
                         }
@@ -299,6 +324,42 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         this.tempToCalculate.clear();
     }
 
+    /**
+     * Method biar yg onClick ga terlalu padat
+     * @param type
+     * @param x
+     * @param y
+     * @return
+     */
+    private Vessel createBox(int type, float x, float y){
+        Vessel v;
+        if(type == 1){ //number
+            Vessel numVessel = new Number(this.etnumber.getText().toString(), x, y, this);
+            this.listOfVessel.add(numVessel);
+            //tempVessel.draw(canvas, mCanvas, painter, this);
+            this.draw(numVessel);
+            this.reset();
+            v = numVessel;
+        }
+        else{
+            Vessel opVessel = new Operator(this.spinnerOperator.getSelectedItem().toString(), x, y, this);
+            this.listOfVessel.add(opVessel);
+            //tempVessel.draw(canvas, mCanvas, painter, this);
+            this.draw(opVessel);
+            v = opVessel;
+        }
+        return v;
+    }
+
+    private boolean isEmptyEmptyVessel(){
+        for (Storage anEmptyVessel : emptyVessel) {
+            if (!anEmptyVessel.isEmpty()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     @Override
     public void onClick(View view) {
         if(!canvasInitiated){
@@ -321,12 +382,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 toast.show();
             }
             else {
-                Vessel numVessel = new Number(this.etnumber.getText().toString(), rng.nextInt(mCanvas.getWidth() - a * 2) + a
-                        , rng.nextInt(2 + mCanvas.getHeight() / 2) + mCanvas.getHeight() / 2, this);
-                this.listOfVessel.add(numVessel);
-                //tempVessel.draw(canvas, mCanvas, painter, this);
-                this.draw(numVessel);
-                this.reset();
+                this.createBox(1, rng.nextInt(mCanvas.getWidth() - a * 2) + a
+                        , rng.nextInt(2 + mCanvas.getHeight() / 2) + mCanvas.getHeight() / 2);
             }
         }
         else if(view.getId()==this.btnAddOperator.getId()){
@@ -335,15 +392,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 toast.show();
             }
             else {
-                Vessel opVessel = new Operator(this.spinnerOperator.getSelectedItem().toString(), rng.nextInt(mCanvas.getWidth() - a * 2) + a
-                        , rng.nextInt(2 + mCanvas.getHeight() / 2) + mCanvas.getHeight() / 2, this);
-                this.listOfVessel.add(opVessel);
-                //tempVessel.draw(canvas, mCanvas, painter, this);
-                this.draw(opVessel);
+                this.createBox(2, rng.nextInt(mCanvas.getWidth() - a * 2) + a
+                        , rng.nextInt(2 + mCanvas.getHeight() / 2) + mCanvas.getHeight() / 2);
             }
         }
         else if(view.getId()==this.btnCompute.getId()){
-            if(this.listOfValues.isEmpty()){
+            if(this.isEmptyEmptyVessel()){
                 Toast toast = Toast.makeText(getApplicationContext(), "Anda belum memasukan data kedalam kotak", Toast.LENGTH_SHORT);
                 toast.show();
             }
@@ -376,6 +430,60 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         this.initializeCanvas();
         this.populateAssVesselList();
 
+    }
+
+    @Override
+    public boolean onLongClick(View view) {
+        int head = 0;
+        Vessel temp = null;
+        int a = this.mCanvas.getWidth() / 10;
+        int b = this.mCanvas.getHeight() / 10;
+        //ini yang nextFloatnya nanti di benerin
+        if(view.getId()==this.btnAddNumber.getId()){
+            head = getHead(1) + 1;
+            if(etnumber.getText().toString().equals("")){
+                Toast toast = Toast.makeText(getApplicationContext(), "Angka belum dimasukan", Toast.LENGTH_SHORT);
+                toast.show();
+            }
+            else {
+                while(head % 2 != 0) {
+                    head ++;
+                }
+                if(head < 7) {
+                    Log.d("headlength", String.valueOf(head));
+                    Storage headStorage = emptyVessel[head];
+                    temp = this.createBox(1, headStorage.getMiddlePoint().x, headStorage.getMiddlePoint().y);
+                }
+            }
+        }
+        else if(view.getId()==this.btnAddOperator.getId()){
+            head = getHead(2) + 1;
+            if(spinnerOperator.getSelectedItem().toString().equals("")){
+                Toast toast = Toast.makeText(getApplicationContext(), "Operator belum dimasukan", Toast.LENGTH_SHORT);
+                toast.show();
+            }
+            else {
+                while(head % 2 != 1){
+                    head ++;
+                }
+                if(head < 7) {
+                    Log.d("headlength", String.valueOf(head));
+                    Storage headStorage = emptyVessel[head];
+                    temp = this.createBox(2, headStorage.getMiddlePoint().x, headStorage.getMiddlePoint().y);
+                }
+            }
+        }
+        if(head < 7) {
+            emptyVessel[head].setInVessel(temp);
+            emptyVessel[head].setEmpty(false);
+        }
+        else{
+            Toast toast = Toast.makeText(getApplicationContext(), "Penuh", Toast.LENGTH_SHORT);
+            toast.show();
+        }
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        return true;
     }
 
     private class CostumeGestureListener extends GestureDetector.SimpleOnGestureListener{
