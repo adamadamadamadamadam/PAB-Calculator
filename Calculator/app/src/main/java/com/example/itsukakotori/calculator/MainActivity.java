@@ -97,8 +97,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         this.btnAddNumber.setOnClickListener(this);
         this.btnAddOperator.setOnClickListener(this);
         this.btnCompute.setOnClickListener(this);
-        this.btnAddNumber.setOnLongClickListener(this);
-        this.btnAddOperator.setOnLongClickListener(this);
+        this.etnumber.setOnLongClickListener(this);
+        this.spinnerOperator.setOnLongClickListener(this);
         this.history = new History();
         this.canvasInitiated = false;
 
@@ -423,17 +423,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             else{
                 this.temping();
                 this.presenter.addMath(tempToCalculate);
-                this.presenter.countAlternate();
-                double x = this.presenter.getResult();
-                String result = ""+x;
-                this.history.addHistory(this.tempToCalculate,result);
-                Number numVessel = new Number(result, this.resultVessel.getMiddlePoint().x
-                        , this.resultVessel.getMiddlePoint().y, this);
-                listOfVessel.add(numVessel);
-                this.draw(numVessel);
-                this.resetTemping();
-                this.presenter.clearList();
-                Log.d("event", "onClick: out");
+                if(this.presenter.isValid()) {
+                    this.presenter.countAlternate();
+                    double x = this.presenter.getResult();
+                    String result = "" + x;
+                    this.history.addHistory(this.tempToCalculate, result);
+                    Number numVessel = new Number(result, this.resultVessel.getMiddlePoint().x
+                            , this.resultVessel.getMiddlePoint().y, this);
+                    listOfVessel.add(numVessel);
+                    this.draw(numVessel);
+                    this.resetTemping();
+                    this.presenter.clearList();
+                    Log.d("event", "onClick: out");
+                }
+                else{
+                    Toast toast = Toast.makeText(getApplicationContext(), "Operasi tidak valid", Toast.LENGTH_SHORT);
+                    toast.show();
+                    this.resetTemping();
+                    this.presenter.clearList();
+                }
             }
         }
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -457,7 +465,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Vessel temp = null;
         int a = this.mCanvas.getWidth() / 10;
         int b = this.mCanvas.getHeight() / 10;
-        if(view.getId()==this.btnAddNumber.getId()){
+        if(view.getId()==this.etnumber.getId()){
             head = getHead(1) + 1;
             if(etnumber.getText().toString().equals("")){
                 Toast toast = Toast.makeText(getApplicationContext(), "Angka belum dimasukan", Toast.LENGTH_SHORT);
@@ -474,7 +482,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }
         }
-        else if(view.getId()==this.btnAddOperator.getId()){
+        else if(view.getId()==this.spinnerOperator.getId()){
             head = getHead(2) + 1;
             if(spinnerOperator.getSelectedItem().toString().equals("")){
                 Toast toast = Toast.makeText(getApplicationContext(), "Operator belum dimasukan", Toast.LENGTH_SHORT);

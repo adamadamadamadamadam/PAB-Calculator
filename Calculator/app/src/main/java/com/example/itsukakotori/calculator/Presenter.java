@@ -28,6 +28,7 @@ public class Presenter {
     }
 
     public void clearList(){
+        this.mathList.clear();
         this.numbers.clear();
         this.operator.clear();
     }
@@ -37,7 +38,7 @@ public class Presenter {
     }
 
     public void addMath(LinkedList list){
-        this.mathList = list;
+        this.mathList.addAll(list);
     }
 
     protected void spreadNumberOperator(){
@@ -62,6 +63,24 @@ public class Presenter {
             this.spreadNumberOperator();
             this.count();
         }
+    }
+
+    public boolean isValid() {
+        boolean num = true;
+        for (int i = 0; i < mathList.size(); i++) {
+            if (num) {
+                if (mathList.get(i).equals("+") || mathList.get(i).equals("-") || mathList.get(i).equals("*") || mathList.get(i).equals("/")) {
+                    return false;
+                }
+                num = false;
+            } else {
+                if (!(mathList.get(i).equals("+") || mathList.get(i).equals("-") || mathList.get(i).equals("*") || mathList.get(i).equals("/"))) {
+                    return false;
+                }
+                num = true;
+            }
+        }
+        return !num;
     }
 
     public void count(){

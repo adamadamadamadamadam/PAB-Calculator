@@ -19,8 +19,8 @@ public class Number extends Vessel {
         super.value = value;
         super.middlePoint = new PointF(x,y);
         super.type = "number";
-        super.a = activity.mCanvas.getWidth() / 10;
-        super.b = activity.mCanvas.getHeight() / 10;
+        super.a = activity.mCanvas.getWidth() / 11;
+        super.b = activity.mCanvas.getHeight() / 11;
     }
 
 
