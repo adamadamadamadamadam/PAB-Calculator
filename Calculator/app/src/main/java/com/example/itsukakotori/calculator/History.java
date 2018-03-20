@@ -1,8 +1,9 @@
 package com.example.itsukakotori.calculator;
 
+import android.util.Log;
+
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Created by Itsuka Kotori on 3/17/2018.
@@ -10,17 +11,24 @@ import java.util.List;
 
 public class History {
 
-    protected HashMap history;
+    protected HashMap<String, LinkedList<String>> history;
 
     public History(){
-        this.history = new HashMap();
+        this.history = new HashMap<>();
     }
 
-    public void addHistory(LinkedList list, double result){
-        history.put(result, list);
+    public void addHistory(LinkedList<String> list, String result){
+        LinkedList<String> temp = new LinkedList<>();
+        temp.addAll(list);
+        history.put(result, temp);
     }
 
-    public LinkedList getList(double i){
-        return (LinkedList)history.get(i);
+    public LinkedList<String> getList(String i){
+        //Log.d("vesselhistory", history.get(i))
+        return history.get(i);
+    }
+
+    public boolean keyExist(String i){
+        return history.containsKey(i);
     }
 }

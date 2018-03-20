@@ -26,6 +26,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Random;
 
@@ -53,17 +54,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected ImageView mCanvas;
     protected Canvas canvas;
     protected Bitmap mBitmap;
-    //CalculatorImageView ivSelected;
 
     private Button btnAddOperator, btnAddNumber, btnCompute;
     private EditText etnumber;
     private Spinner spinnerOperator;
-    private ImageView ivDelete;
+    private ImageView ivDelete, ivHistory;
+    private boolean willGetHistory;
 
     Animation shakeAnim;
 
     private boolean canvasInitiated;
-    float counterX;
     Random rng;
 
     @Override
@@ -80,20 +80,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         this.mCanvas = findViewById(R.id.iv_Canvas);
         this.btnCompute = findViewById(R.id.btn_compute);
         this.ivDelete = findViewById(R.id.iv_delete);
+        this.ivHistory = findViewById(R.id.iv_history);
         this.touchedBoxes = new ArrayList<>();
         this.listOfValues = new LinkedList<>();
         this.tempToCalculate = new LinkedList<>();
         this.emptyVessel = new Storage[8];
         this.shakeAnim = AnimationUtils.loadAnimation(this, R.anim.shake);
-
-        /*Bitmap bitmap = Bitmap.createBitmap(this.mCanvas.getWidth(),this.mCanvas.getHeight(),Bitmap.Config.ARGB_8888);
-        this.mCanvas.setImageBitmap(bitmap);
-        this.canvas = new Canvas(bitmap);
-
-        this.painter = new Paint();
-
-        this.mCanvas.invalidate();*/
-
+        this.willGetHistory = false;
         CostumeGestureListener cgl = new CostumeGestureListener(this);
         this.gestureDetector = new GestureDetector(this,cgl);
 
@@ -185,7 +178,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         this.mBitmap= Bitmap.createBitmap(this.mCanvas.getWidth(),this.mCanvas.getHeight(),Bitmap.Config.ARGB_8888);
         this.mCanvas.setImageBitmap(mBitmap);
         this.canvas = new Canvas(mBitmap);
-
         this.painter = new Paint();
         this.painter.setTextSize(this.painter.getTextSize() * 5);
         System.out.println("Canvas Created");
@@ -255,12 +247,50 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             }
                         }
                         touchedBoxes.clear();
-                        //listOfValues.add(vesselClicked.getValue()); // PLACEHOLDER. BELUM BENER.
                     }
-                    //for(int i = 0; i < listOfAssignedVessel.size(); i++){
-                    //    draw(listOfAssignedVessel.get(i));
-                    //}
-                    for(int i = 0; i < emptyVessel.length; i++){
+                    //Masuk ke history
+                    if(willGetHistory) {
+                        if (history.keyExist(vesselClicked.getValue())) {
+                            LinkedList tempList = history.getList(vesselClicked.getValue());
+                            Log.d("vesselhistory", String.valueOf(history.getList(vesselClicked.getValue()).size()));
+                            int a = this.mCanvas.getWidth() / 10;
+                            for (int i = 0; i < emptyVessel.length; i++) {
+                                if (!emptyVessel[i].isEmpty()) {
+                                    for (int j = 0; j < listOfVessel.size(); j++) {
+                                        //Harusnya kalo kita pgn liat history yg keacak cuma kotak-kotak yg diatas, bukan semua
+                                        //Jadi ini masih ngaco
+                                        //if (emptyVessel[i].getInVessel().equals(listOfVessel.get(j))) {
+                                        listOfVessel.get(j).setMiddlePoint(rng.nextInt(mCanvas.getWidth() - a * 2) + a
+                                                , rng.nextInt(2 + mCanvas.getHeight() / 2) + mCanvas.getHeight() / 2);
+                                        emptyVessel[i].emptyVessel();
+                                        //}
+                                    }
+                                }
+                            }
+                            //resultVessel = vesselClicked;
+                            for(int i = 0; i < tempList.size(); i++){
+                                Vessel newVessel;
+                                if(i % 2 == 0){
+                                    newVessel = new Number(tempList.get(i).toString(), emptyVessel[i].getMiddlePoint().x,
+                                            emptyVessel[i].getMiddlePoint().y, this);
+                                }
+                                else{
+                                    newVessel = new Operator(tempList.get(i).toString(), emptyVessel[i].getMiddlePoint().x,
+                                            emptyVessel[i].getMiddlePoint().y, this);
+                                }
+                                emptyVessel[i].fillVessel(newVessel);
+                                listOfVessel.add(newVessel);
+                                Log.d("vesselhistory", String.valueOf(tempList.get(i)));
+                            }
+                            vesselClicked.setMiddlePoint(resultVessel.getMiddlePoint().x, resultVessel.getMiddlePoint().y);
+                        }
+                        else{
+                            Toast toast = Toast.makeText(getApplicationContext(), "Tidak ada history untuk ditampilkan", Toast.LENGTH_SHORT);
+                            toast.show();
+                        }
+                        willGetHistory = false;
+                    }
+                    for (int i = 0; i < emptyVessel.length; i++) {
                         draw(emptyVessel[i]);
                     }
                     if(!vesselClicked.getDeleteStatus()){
@@ -280,9 +310,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void draw(Vessel box){
         Rect rect = new Rect();
-        //isi method buat bikin rect
-        //float a = this.mCanvas.getWidth() / 20;
-        //float b = this.mCanvas.getHeight() / 20;
         if(box.getTop() < 0){
             box.setMiddlePoint(box.getMiddlePoint().x, 0 + box.getB());
         }
@@ -310,7 +337,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         painter.setColor(Color.BLACK);
         painter.setTextAlign(Paint.Align.CENTER);
         if(!(box.getValue() == null)){
-            //float textLength = painter.measureText(box.getValue());
             canvas.drawText(box.getValue(), box.getMiddlePoint().x, box.getMiddlePoint().y, painter);
         }
         if(box.equals(resultVessel)){
@@ -336,7 +362,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if(type == 1){ //number
             Vessel numVessel = new Number(this.etnumber.getText().toString(), x, y, this);
             this.listOfVessel.add(numVessel);
-            //tempVessel.draw(canvas, mCanvas, painter, this);
             this.draw(numVessel);
             this.reset();
             v = numVessel;
@@ -344,7 +369,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         else{
             Vessel opVessel = new Operator(this.spinnerOperator.getSelectedItem().toString(), x, y, this);
             this.listOfVessel.add(opVessel);
-            //tempVessel.draw(canvas, mCanvas, painter, this);
             this.draw(opVessel);
             v = opVessel;
         }
@@ -368,14 +392,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         int[] coords = new int[2];
         mCanvas.getLocationOnScreen(coords);
-        int left = coords[0];
-        int right = coords[0] + mCanvas.getWidth();
-        int top = coords[1];
-        int bottom = coords[1] + mCanvas.getHeight();
 
         int a = this.mCanvas.getWidth() / 10;
         int b = this.mCanvas.getHeight() / 10;
-        //ini yang nextFloatnya nanti di benerin
         if(view.getId()==this.btnAddNumber.getId()){
             if(etnumber.getText().toString().equals("")){
                 Toast toast = Toast.makeText(getApplicationContext(), "Angka belum dimasukan", Toast.LENGTH_SHORT);
@@ -403,16 +422,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
             else{
                 this.temping();
-                this.presenter.addMath(this.tempToCalculate);
+                this.presenter.addMath(tempToCalculate);
                 this.presenter.countAlternate();
                 double x = this.presenter.getResult();
                 String result = ""+x;
-                this.history.addHistory(this.tempToCalculate,x);
-                this.resetTemping();
-                Vessel numVessel = new Number(result, this.resultVessel.getMiddlePoint().x
+                this.history.addHistory(this.tempToCalculate,result);
+                Number numVessel = new Number(result, this.resultVessel.getMiddlePoint().x
                         , this.resultVessel.getMiddlePoint().y, this);
                 listOfVessel.add(numVessel);
                 this.draw(numVessel);
+                this.resetTemping();
                 this.presenter.clearList();
                 Log.d("event", "onClick: out");
             }
@@ -438,7 +457,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Vessel temp = null;
         int a = this.mCanvas.getWidth() / 10;
         int b = this.mCanvas.getHeight() / 10;
-        //ini yang nextFloatnya nanti di benerin
         if(view.getId()==this.btnAddNumber.getId()){
             head = getHead(1) + 1;
             if(etnumber.getText().toString().equals("")){
@@ -497,10 +515,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public boolean onDown(MotionEvent e) {
             Log.d("event", "onDown: acc");
-            //1.ambil koordinat yang di pencet
-            //2.check kotak/vessel mana yang di pencet method getField()
-            // kalo gk true gk bakal terjadi apa2
-            //kalo true ambil semua infonya masukin ke vesselClicked
             return true;
         }
 
@@ -510,10 +524,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if(vesselClicked != null) {
                 touchedBoxes.clear();
                 canvas.drawColor(getResources().getColor(R.color.default_background_color));
-                //listOfVessel.add(vesselClicked);
-                //for(int i = 0; i < listOfAssignedVessel.size(); i++){
-                //    draw(listOfAssignedVessel.get(i));
-                //}
                 for(int i = 0; i < emptyVessel.length; i++){
                     draw(emptyVessel[i]);
                 }
@@ -529,6 +539,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log.d("event", "touched box list size = " + touchedBoxes.size());
                 for(int i = 0; i < listOfVessel.size(); i++){
                     draw(listOfVessel.get(i));
+                }
+                if(vesselClicked.getType().equals("number") && vesselClicked.getBottom() > ivHistory.getY() && vesselClicked.getLeft() < (ivHistory.getX() + ivHistory.getWidth())){
+                    ivHistory.startAnimation(shakeAnim);
+                    //showHistory((Number) vesselClicked);
+                    willGetHistory = true;
+                }
+                else{
+                    willGetHistory = false;
                 }
                 if(vesselClicked.getBottom() > ivDelete.getY() && vesselClicked.getRight() > ivDelete.getX()){
                     vesselClicked.setDeletion(true);

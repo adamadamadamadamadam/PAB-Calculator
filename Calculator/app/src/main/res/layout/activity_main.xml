@@ -18,6 +18,14 @@
         android:layout_alignParentEnd="true"
         android:src="@android:drawable/ic_menu_delete"
         android:layout_alignParentRight="true" />
+    <ImageView
+        android:id="@+id/iv_history"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/calculator_operator"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:src="@android:drawable/ic_menu_revert"/>
     <RelativeLayout
         android:layout_marginBottom="10dp"
         android:id="@+id/calculator_operator"

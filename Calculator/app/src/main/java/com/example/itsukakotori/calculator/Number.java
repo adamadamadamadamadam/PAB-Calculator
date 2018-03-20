@@ -6,11 +6,14 @@ import android.graphics.PointF;
 import android.graphics.Rect;
 import android.widget.ImageView;
 
+import java.util.LinkedList;
+
 /**
  * Created by Itsuka Kotori on 3/6/2018.
  */
 
 public class Number extends Vessel {
+
 
     public Number(String value, float x, float y, MainActivity activity){
         super.value = value;
@@ -19,6 +22,8 @@ public class Number extends Vessel {
         super.a = activity.mCanvas.getWidth() / 10;
         super.b = activity.mCanvas.getHeight() / 10;
     }
+
+
 
     /*@Override
     void draw(Canvas canvas, ImageView mCanvas, Paint paint, MainActivity activity) {

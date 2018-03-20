@@ -18,7 +18,6 @@ public abstract class Vessel {
     protected float y;
     protected float a,b;
     protected String type;
-    protected MainActivity activity;
     protected boolean willBeDeleted;
 
     public Vessel(){

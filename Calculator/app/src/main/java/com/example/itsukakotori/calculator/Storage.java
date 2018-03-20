@@ -44,4 +44,12 @@ public class Storage extends Vessel {
     public int getTypeInt(){
         return this.typeInt;
     }
+    public void emptyVessel(){
+        this.empty = true;
+        this.setInVessel(null);
+    }
+    public void fillVessel(Vessel vessel){
+        this.empty = false;
+        this.setInVessel(vessel);
+    }
 }
